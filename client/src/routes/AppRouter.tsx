@@ -7,6 +7,7 @@ import { RoleBasedRoute } from "./RoleBasedRoute";
 
 // Pages
 import Login from "../pages/auth/Login";
+import Signup from "../pages/auth/Signup";
 import Unauthorized from "../pages/Unauthorized.jsx";
 
 // Layouts
@@ -21,6 +22,7 @@ import ManageUsers from "../pages/admin/ManageUsers";
 import ApprovalRules from "../pages/admin/ApprovalRules";
 import ManageRoles from "../pages/admin/ManageRoles";
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
+import TeamExpenses from "../pages/manager/TeamExpenses";
 import EmployeeDashboard from "../pages/employee/EmployeeDashboard";
 import ExpenseHistory from "../pages/employee/ExpenseHistory";
 import SubmitExpense from "../pages/employee/SubmitExpense";
@@ -30,7 +32,9 @@ export const AppRouter = () => {
 
   return (
     <Routes>
+      <Route path="/auth" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route
         path="/"
         element={
@@ -63,14 +67,12 @@ export const AppRouter = () => {
       <Route
         path="/manager"
         element={
-          <ProtectedRoute>
-            <RoleBasedRoute allowedRoles={["MANAGER"]}>
-              <ManagerLayout />
-            </RoleBasedRoute>
-          </ProtectedRoute>
+          <ManagerLayout />
         }
       >
         <Route index element={<ManagerDashboard />} />
+        <Route path="approvals" element={<ManagerDashboard />} />
+        <Route path="expenses" element={<TeamExpenses />} />
       </Route>
 
       {/* ================= EMPLOYEE ================= */}

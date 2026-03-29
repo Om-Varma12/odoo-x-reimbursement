@@ -11,6 +11,19 @@ const unwrapData = (response) => {
 };
 
 export const authService = {
+	signup: async ({ email, password, companyName, country, currencyCode, role }) => {
+		const response = await axiosInstance.post(`${API_URL}/signup`, {
+			email,
+			password,
+			companyName,
+			country,
+			currencyCode,
+			role,
+		});
+
+		return unwrapData(response);
+	},
+
 	login: async (email, password) => {
 		const response = await axiosInstance.post(`${API_URL}/login`, {
 			email,

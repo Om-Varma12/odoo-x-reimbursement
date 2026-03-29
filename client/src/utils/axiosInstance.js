@@ -30,7 +30,7 @@ axiosInstance.interceptors.response.use(
       // Token expired or invalid - clear auth and redirect to login
       useAuthStore.getState().logout();
       localStorage.removeItem("auth-storage");
-      window.location.href = "/login";
+      window.location.href = "/auth";
     }
     return Promise.reject(error);
   }

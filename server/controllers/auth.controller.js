@@ -3,6 +3,11 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const { generateToken } = require("../middleware/auth.middleware");
 
+const inferRoleFromEmail = (email = "") => {
+  const local = String(email).split("@")[0].toLowerCase();
+  return local.includes("manager") ? "MANAGER" : "ADMIN";
+};
+
 /**
  * Signup: Create new Company + Admin User
  * POST /auth/signup
@@ -10,7 +15,7 @@ const { generateToken } = require("../middleware/auth.middleware");
  */
 exports.signup = async (req, res) => {
   try {
-    const { email, password, companyName, country, currencyCode } = req.body;
+    const { email, password, companyName, country, currencyCode, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -28,33 +33,37 @@ exports.signup = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const accountRole = ["ADMIN", "MANAGER"].includes(role)
+      ? role
+      : inferRoleFromEmail(email);
+
     // Create Admin User
-    const admin = await User.create({
-      name: `${companyName} Admin`,
+    const user = await User.create({
+      name: `${companyName} ${accountRole === "MANAGER" ? "Manager" : "Admin"}`,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: "ADMIN",
+      role: accountRole,
       companyId: company._id,
       managerId: null
     });
 
     // Generate JWT token
     const token = generateToken({
-      userId: String(admin._id),
-      email: admin.email,
-      role: admin.role,
-      companyId: String(admin.companyId)
+      userId: String(user._id),
+      email: user.email,
+      role: user.role,
+      companyId: String(user.companyId)
     });
 
     return res.status(201).json({
       success: true,
       data: {
         user: {
-          id: String(admin._id),
-          name: admin.name,
-          email: admin.email,
-          role: admin.role,
-          companyId: String(admin.companyId)
+          id: String(user._id),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          companyId: String(user.companyId)
         },
         token,
         company: {
